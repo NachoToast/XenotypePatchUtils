@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <XenotypePatchUtils.SettingsCategory>Xenotype Patch Utils</XenotypePatchUtils.SettingsCategory>
+
+    <XenotypePatchUtils.Tooltip>If enabled, all actions done by this mod will be shown in the debug log.\n\nThis can be pretty helpful for seeing what is going on when you're writing XML patches, just remember to turn it off once you're finished!</XenotypePatchUtils.Tooltip>
+</LanguageData>

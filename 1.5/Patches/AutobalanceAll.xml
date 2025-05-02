@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="XenotypePatchUtils.PatchOperation_AutobalanceAll">
+        <xpath>Defs/XenotypeDef[modExtensions/li[@Class="XenotypePatchUtils.PatchMePlease"]]</xpath>
+    </Operation>
+</Patch>
