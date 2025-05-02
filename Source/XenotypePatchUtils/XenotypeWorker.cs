@@ -48,28 +48,39 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, "Skipping since removal would fail");
+                        XenotypePatchUtils.Message(DefName, "Skipping since <remove> would fail");
                     }
 
                     continue;
                 }
 
                 ActionWorker addAction = ActionWorker_Add.Create(action, this);
-                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
 
-                if (addAction == null && addFirstAction == null)
+                if (addAction == null)
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, "Skipping since both <add> and <addFirst> would fail");
+                        XenotypePatchUtils.Message(DefName, "Skipping since <add> would fail");
+                    }
+
+                    continue;
+                }
+
+                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
+
+                if (addFirstAction == null)
+                {
+                    if (Settings.devmode)
+                    {
+                        XenotypePatchUtils.Message(DefName, "Skipping since both <addFirst> would fail");
                     }
 
                     continue;
                 }
 
                 removeAction.Apply(this);
-                addAction?.Apply(this);
-                addFirstAction?.Apply(this);
+                addAction.Apply(this);
+                addFirstAction.Apply(this);
             }
             catch (Exception ex)
             {
@@ -92,14 +103,14 @@ public partial class XenotypeWorker
 
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(DefName, $"Attempting to correct metabolic efficiency to {desiredEfficiency}");
+            XenotypePatchUtils.Message(DefName, $"Attempting to correct metabolic efficiency to {desiredEfficiency} (currently is {geneList.TotalEfficiency.ToStringWithSign()})");
         }
 
         for (int i = 0; i < toFixMetabolism.Count; i++)
         {
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(DefName, $"Doing <toFixMetabolism> action {i + 1} of {always.Count}");
+                XenotypePatchUtils.Message(DefName, $"Doing <toFixMetabolism> action {i + 1} of {toFixMetabolism.Count}");
             }
 
             try
@@ -112,48 +123,58 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, "Skipping since removal would fail");
+                        XenotypePatchUtils.Message(DefName, "Skipping since <remove> would fail");
                     }
 
                     continue;
                 }
 
                 ActionWorker addAction = ActionWorker_Add.Create(action, this);
-                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
-                ActionWorker addBestAction = ActionWorker_AddBest.Create(action, this);
 
-                if (addAction == null && addFirstAction == null && addBestAction == null)
+                if (addAction == null)
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <add>, <addFirst>, and <addBest> would fail");
+                        XenotypePatchUtils.Message(DefName, "Skipping since <add> would fail");
                     }
 
                     continue;
                 }
 
-                int metabolismImpact = removeAction.efficiencyChange;
+                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
 
-                if (addAction != null)
+                if (addFirstAction == null)
                 {
-                    metabolismImpact += addAction.efficiencyChange;
+                    if (Settings.devmode)
+                    {
+                        XenotypePatchUtils.Message(DefName, "Skipping since <addFirst> would fail");
+                    }
+
+                    continue;
                 }
 
-                if (addFirstAction != null)
+                ActionWorker addBestAction = ActionWorker_AddBest.Create(action, this);
+
+                if (addBestAction == null)
                 {
-                    metabolismImpact += addFirstAction.efficiencyChange;
+                    if (Settings.devmode)
+                    {
+                        XenotypePatchUtils.Message(DefName, "Skipping since <addBest> would fail");
+                    }
+
+                    continue;
                 }
 
-                if (addBestAction != null)
-                {
-                    metabolismImpact += addBestAction.efficiencyChange;
-                }
+                int metabolismImpact = removeAction.efficiencyChange +
+                    addAction.efficiencyChange +
+                    addFirstAction.efficiencyChange +
+                    addBestAction.efficiencyChange;
 
                 if (metabolismImpact == 0)
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, $"Does not impact metabolic efficiency efficiency");
+                        XenotypePatchUtils.Message(DefName, "Does not impact metabolic efficiency efficiency");
                     }
 
                     continue;
@@ -180,9 +201,9 @@ public partial class XenotypeWorker
                 }
 
                 removeAction.Apply(this);
-                addAction?.Apply(this);
-                addFirstAction?.Apply(this);
-                addBestAction?.Apply(this);
+                addAction.Apply(this);
+                addFirstAction.Apply(this);
+                addBestAction.Apply(this);
 
                 if (IsInRange(out maxIncrease, out maxDecrease))
                 {
