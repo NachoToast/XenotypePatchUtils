@@ -4,6 +4,7 @@
     <exclude>.editorconfig</exclude>
     <exclude>.git</exclude>
     <exclude>.vscode</exclude>
+    <exclude>1.5\Assemblies\XenotypePatchUtils.pdb</exclude>
     <exclude>README.md</exclude>
     <exclude>Source</exclude>
   </Excluded>
