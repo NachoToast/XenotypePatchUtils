@@ -17,6 +17,17 @@ public static class GeneDefResolver
 
     public static XmlDocument Xml { get; set; }
 
+    public static void Clear(out int cachedGeneCount, out int missingGeneCount)
+    {
+        cachedGeneCount = cachedGenes.Count;
+        missingGeneCount = missingGenes.Count;
+
+        cachedGenes.Clear();
+        missingGenes.Clear();
+
+        Xml = null;
+    }
+
     /// <summary>
     /// Attempts to find a GeneDef and it's metabolic efficiency via defName.
     /// </summary>

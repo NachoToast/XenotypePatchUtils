@@ -50,7 +50,7 @@ public class GeneList
 
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(DefName, $"Resolved {genes.Count} / {items.Count} <genes> (total efficiency = {TotalEfficiency.ToStringWithSign()})");
+            XenotypePatchUtils.Message(DefName, $"Resolved {genes.Count} / {items.Count} genes (total efficiency = {XenotypePatchUtils.EfficiencyToString(TotalEfficiency)})");
         }
     }
 

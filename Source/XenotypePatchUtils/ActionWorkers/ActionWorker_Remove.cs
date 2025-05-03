@@ -1,18 +1,21 @@
-﻿namespace XenotypePatchUtils;
+﻿using System.Text;
+
+namespace XenotypePatchUtils;
 
 // -efficiency since the metabolic efficiency impact of this gene is reversed when it's removed
 public class ActionWorker_Remove(string defName, int efficiency) : ActionWorker(-efficiency)
 {
     private readonly string defName = defName;
 
-    public static ActionWorker Create(XmlNode action, XenotypeWorker xenotypeWorker)
+    public static bool TryCreate(XmlNode action, XenotypeWorker xenotypeWorker, out ActionWorker worker)
     {
         XmlElement remove = action["remove"];
 
         if (remove == null)
         {
             // nothing to remove, always succeeds
-            return Empty;
+            worker = Empty;
+            return true;
         }
 
         string defName = remove.InnerText;
@@ -23,20 +26,33 @@ public class ActionWorker_Remove(string defName, int efficiency) : ActionWorker(
 
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"Removal of {defName} would not succeed - not in the genes list");
+                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"    Removal of {defName.Colorize(ColoredText.ImpactColor)} would not succeed - not in the genes list".Colorize(Color.gray));
             }
 
-            return null;
+            worker = null;
+            return false;
         }
 
-        return new ActionWorker_Remove(defName, efficiency);
+        worker = new ActionWorker_Remove(defName, efficiency);
+        return true;
     }
 
     public override void Apply(XenotypeWorker xenotypeWorker)
     {
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(xenotypeWorker.DefName, $"Removing {defName} ({efficiencyChange.ToStringWithSign()})");
+            StringBuilder message = new StringBuilder("    Removing ".Colorize(Color.gray))
+                .Append(defName.Colorize(ColoredText.ImpactColor));
+
+            if (efficiencyChange != 0)
+            {
+                message
+                    .Append(" (")
+                    .Append(XenotypePatchUtils.EfficiencyToColoredString(efficiencyChange))
+                    .Append(')');
+            }
+
+            XenotypePatchUtils.Message(xenotypeWorker.DefName, message.ToString());
         }
 
         xenotypeWorker.geneList.Remove(defName);

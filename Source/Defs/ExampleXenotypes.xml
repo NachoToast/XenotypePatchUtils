@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <XenotypeDef>
+        <defName>XPU_ExampleXenotypeA</defName>
+        <label>XPU example xenotype (a)</label>
+        <description>This is an example xenotype to showcase features of Xenotype Patch Utils.\n\nThis example shows how you could conditionally add a gene based on the active mods.</description>
+        <iconPath>UI/Icons/Xenotypes/Baseliner</iconPath>
+        <genes>
+            <!-- Vanilla - reduced pain -->
+            <li>Pain_Reduced</li>
+        </genes>
+        <modExtensions>
+            <li MayRequire="NachoToast.XenotypePatchUtils" Class="XenotypePatchUtils.PatchMePlease">
+                <always>
+                    <li>
+                        <remove>Pain_Reduced</remove>
+                        <addFirst>
+                            <!-- Big & Small - no pain -->
+                            <li MayRequire="RedMattis.BigSmall.Core">BS_Pain_None</li>
+
+                            <!-- Alpha Genes - painless -->
+                            <li MayRequire="Sarg.AlphaGenes">AG_Painless</li>
+                        </addFirst>
+                    </li>
+                </always>
+            </li>
+        </modExtensions>
+    </XenotypeDef>
+
+    <XenotypeDef>
+        <defName>XPU_ExampleXenotypeB</defName>
+        <label>XPU example xenotype (b)</label>
+        <description>This is an example xenotype to showcase features of Xenotype Patch Utils.\n\nThis example shows how you could correct metabolic efficiency by changing and adding certain genes.</description>
+        <iconPath>UI/Icons/Xenotypes/Baseliner</iconPath>
+        <genes>
+            <!-- Vanilla - psychite impervious -->
+            <li>AddictionImmune_Psychite</li>
+        </genes>
+        <modExtensions>
+            <li MayRequire="NachoToast.XenotypePatchUtils" Class="XenotypePatchUtils.PatchMePlease">
+                <desiredEfficiencyRange>0~0</desiredEfficiencyRange>
+
+                <toFixMetabolism>
+                    <li>
+                        <!-- +3 metabolic efficiency -->
+                        <remove>AddictionImmune_Psychite</remove>
+                        <add>AddictionResistant_Psychite</add>
+                    </li>
+
+                    <li>
+                        <!-- +2 or +1 metabolic efficiency -->
+                        <addBest>
+                            <li>AptitudeTerrible_Social</li>
+                            <li>AptitudePoor_Social</li>
+                        </addBest>
+                    </li>
+
+                    <li>
+                        <!-- +1 metabolic efficiency -->
+                        <add MayRequire="Sarg.AlphaGenes">AG_UnderdevelopedTeeth</add>
+                    </li>
+                </toFixMetabolism>
+            </li>
+        </modExtensions>
+    </XenotypeDef>
+
+    <XenotypeDef>
+        <defName>XPU_ExampleXenotypeC</defName>
+        <label>XPU example xenotype (c)</label>
+        <description>This is an example xenotype to showcase features of Xenotype Patch Utils.\n\nThis example combines the ideas of example A and B, showcasing a xenotype which has genes added by mods, as well as balancing metabolic efficiency to +2 to +3.</description>
+        <iconPath>UI/Icons/Xenotypes/Baseliner</iconPath>
+        <genes>
+            <li>Headbone_MiniHorns</li>
+            <li>AddictionResistant_Alcohol</li>
+            <li>AptitudeStrong_Plants</li>
+            <li MayRequire="RedMattis.BigSmall.Core">BS_FeedingFrenzy</li>
+            <li MayRequire="Sarg.AlphaGenes">AG_SurvivalInstinct_Low</li>
+        </genes>
+        <modExtensions>
+            <li MayRequire="NachoToast.XenotypePatchUtils" Class="XenotypePatchUtils.PatchMePlease">
+                <desiredEfficiencyRange>2~3</desiredEfficiencyRange>
+
+                <always>
+                    <li>
+                        <remove>Headbone_MiniHorns</remove>
+                        <addFirst>
+                            <li MayRequire="Sarg.AlphaGenes">AG_Drakonori_Horns</li>
+                            <li MayRequire="RedMattis.BigSmall.Core">BS_StubbyDemonHorns</li>
+                        </addFirst>
+                    </li>
+
+                    <li>
+                        <addFirst>
+                            <li MayRequire="RedMattis.BigSmall.Core">BS_LargeFrame</li>
+                            <li MayRequire="Sarg.AlphaGenes">AG_LargerBodySize</li>
+                            <li MayRequire="void.charactereditor">SZBodySize_40</li>
+                        </addFirst>
+                    </li>
+                </always>
+
+                <toFixMetabolism>
+                    <li>
+                        <!-- +1 -->
+                        <add>Beauty_Ugly</add>
+                    </li>
+
+                    <li>
+                        <!-- +1 -->
+                        <remove>AptitudeStrong_Plants</remove>
+                    </li>
+
+                    <li>
+                        <!-- +1 or +2 -->
+                        <addBest>
+                            <li>AptitudePoor_Melee</li>
+                            <li>AptitudeTerrible_Melee</li>
+                        </addBest>
+                    </li>
+
+                    <!-- and going the other way... -->
+
+                    <li>
+                        <!-- -1 or -3 -->
+                        <addBest>
+                            <li>AptitudeRemarkable_Shooting</li>
+                            <li>AptitudeStrong_Shooting</li>
+                        </addBest>
+                    </li>
+
+                    <li>
+                        <!-- -1 or -2 -->
+                        <addBest>
+                            <li>Mood_Optimist</li>
+                            <li>Mood_Sanguine</li>
+                        </addBest>
+                    </li>
+                </toFixMetabolism>
+            </li>
+        </modExtensions>
+    </XenotypeDef>
+</Defs>

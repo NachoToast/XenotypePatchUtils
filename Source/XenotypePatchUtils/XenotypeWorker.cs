@@ -31,50 +31,23 @@ public partial class XenotypeWorker
 
     public void DoAlwaysActions()
     {
+        string alwaysStr = "<always>".Colorize(new Color(1f, 0.84f, 0f));
+
         for (int i = 0; i < always.Count; i++)
         {
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(DefName, $"Doing <always> action {i + 1} of {always.Count}");
+                XenotypePatchUtils.Message(DefName, $"{alwaysStr} {i + 1} / {always.Count}");
             }
 
             try
             {
                 XmlNode action = always[i];
 
-                ActionWorker removeAction = ActionWorker_Remove.Create(action, this);
-
-                if (removeAction == null)
+                if (!ActionWorker_Remove.TryCreate(action, this, out ActionWorker removeAction) ||
+                    !ActionWorker_Add.TryCreate(action, this, out ActionWorker addAction) ||
+                    !ActionWorker_AddFirst.TryCreate(action, this, out ActionWorker addFirstAction))
                 {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <remove> would fail");
-                    }
-
-                    continue;
-                }
-
-                ActionWorker addAction = ActionWorker_Add.Create(action, this);
-
-                if (addAction == null)
-                {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <add> would fail");
-                    }
-
-                    continue;
-                }
-
-                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
-
-                if (addFirstAction == null)
-                {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since both <addFirst> would fail");
-                    }
-
                     continue;
                 }
 
@@ -91,11 +64,13 @@ public partial class XenotypeWorker
 
     public void DoMetabolismFixActions()
     {
+        string toFixStr = "<toFixMetabolism>".Colorize(new Color(1f, 0.84f, 0f));
+
         if (IsInRange(out int maxIncrease, out int maxDecrease))
         {
             if (Settings.devmode && toFixMetabolism.Count > 0)
             {
-                XenotypePatchUtils.Message(DefName, $"Skipping <toFixMetabolism> actions since current metabolic efficiency {geneList.TotalEfficiency.ToStringWithSign()} is within desired range ({desiredEfficiency})");
+                XenotypePatchUtils.Message(DefName, $"Skipping {toFixStr} actions since current metabolic efficiency {XenotypePatchUtils.EfficiencyToString(geneList.TotalEfficiency)} is within desired range ({XenotypePatchUtils.EfficiencyToString(desiredEfficiency)})");
             }
 
             return;
@@ -103,65 +78,25 @@ public partial class XenotypeWorker
 
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(DefName, $"Attempting to correct metabolic efficiency to {desiredEfficiency} (currently is {geneList.TotalEfficiency.ToStringWithSign()})");
+            XenotypePatchUtils.Message(DefName, $"Attempting to correct metabolic efficiency to {XenotypePatchUtils.EfficiencyToString(desiredEfficiency)} (currently is {XenotypePatchUtils.EfficiencyToString(geneList.TotalEfficiency)})");
         }
 
         for (int i = 0; i < toFixMetabolism.Count; i++)
         {
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(DefName, $"Doing <toFixMetabolism> action {i + 1} of {toFixMetabolism.Count}");
+                XenotypePatchUtils.Message(DefName, $"{toFixStr} {i + 1} / {toFixMetabolism.Count}");
             }
 
             try
             {
                 XmlNode action = toFixMetabolism[i];
 
-                ActionWorker removeAction = ActionWorker_Remove.Create(action, this);
-
-                if (removeAction == null)
+                if (!ActionWorker_Remove.TryCreate(action, this, out ActionWorker removeAction) ||
+                    !ActionWorker_Add.TryCreate(action, this, out ActionWorker addAction) ||
+                    !ActionWorker_AddFirst.TryCreate(action, this, out ActionWorker addFirstAction) ||
+                    !ActionWorker_AddBest.TryCreate(action, this, out ActionWorker addBestAction))
                 {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <remove> would fail");
-                    }
-
-                    continue;
-                }
-
-                ActionWorker addAction = ActionWorker_Add.Create(action, this);
-
-                if (addAction == null)
-                {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <add> would fail");
-                    }
-
-                    continue;
-                }
-
-                ActionWorker addFirstAction = ActionWorker_AddFirst.Create(action, this);
-
-                if (addFirstAction == null)
-                {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <addFirst> would fail");
-                    }
-
-                    continue;
-                }
-
-                ActionWorker addBestAction = ActionWorker_AddBest.Create(action, this);
-
-                if (addBestAction == null)
-                {
-                    if (Settings.devmode)
-                    {
-                        XenotypePatchUtils.Message(DefName, "Skipping since <addBest> would fail");
-                    }
-
                     continue;
                 }
 
@@ -174,7 +109,7 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, "Does not impact metabolic efficiency efficiency");
+                        XenotypePatchUtils.Message(DefName, "    Does not impact metabolic efficiency efficiency");
                     }
 
                     continue;
@@ -184,7 +119,7 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, $"Would decrease metabolic efficiency too much ({metabolismImpact.ToStringWithSign()}, max is {maxDecrease.ToStringWithSign()})");
+                        XenotypePatchUtils.Message(DefName, $"    Would decrease metabolic efficiency too much ({XenotypePatchUtils.EfficiencyToColoredString(metabolismImpact)}, max is {XenotypePatchUtils.EfficiencyToString(maxDecrease)})");
                     }
 
                     continue;
@@ -194,7 +129,7 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, $"Would increase metabolic efficiency too much ({metabolismImpact.ToStringWithSign()}, max is {maxIncrease.ToStringWithSign()})");
+                        XenotypePatchUtils.Message(DefName, $"    Would increase metabolic efficiency too much ({XenotypePatchUtils.EfficiencyToColoredString(metabolismImpact)}, max is {XenotypePatchUtils.EfficiencyToString(maxIncrease)})");
                     }
 
                     continue;
@@ -209,7 +144,7 @@ public partial class XenotypeWorker
                 {
                     if (Settings.devmode)
                     {
-                        XenotypePatchUtils.Message(DefName, $"Metabolic efficiency is now in range ({geneList.TotalEfficiency.ToStringWithSign()}), skipping remaining operations");
+                        XenotypePatchUtils.Message(DefName, $"    Metabolic efficiency ({XenotypePatchUtils.EfficiencyToString(geneList.TotalEfficiency)}) {"is now in range".Colorize(new Color(0.56f, 0.93f, 0.56f))} ({XenotypePatchUtils.EfficiencyToString(desiredEfficiency)}), skipping remaining operations");
                     }
 
                     return;
@@ -217,7 +152,7 @@ public partial class XenotypeWorker
 
                 if (Settings.devmode)
                 {
-                    XenotypePatchUtils.Message(DefName, $"New metabolic efficiency = {geneList.TotalEfficiency.ToStringWithSign()}");
+                    XenotypePatchUtils.Message(DefName, $"    Total metabolic efficiency is now {XenotypePatchUtils.EfficiencyToString(geneList.TotalEfficiency)}".Colorize(Color.gray));
                 }
             }
             catch (Exception ex)
@@ -228,7 +163,7 @@ public partial class XenotypeWorker
 
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(DefName, $"Final metabolic efficiency is ({geneList.TotalEfficiency.ToStringWithSign()}");
+            XenotypePatchUtils.Message(DefName, $"Final metabolic efficiency is {XenotypePatchUtils.EfficiencyToString(geneList.TotalEfficiency)} ({"not in target range".Colorize(new Color(0.94f, 0.5f, 0.5f))})");
         }
     }
 

@@ -1,4 +1,6 @@
-﻿namespace XenotypePatchUtils;
+﻿using System.Text;
+
+namespace XenotypePatchUtils;
 
 public class ActionWorker_Add(string defName, int efficiency) : ActionWorker(efficiency)
 {
@@ -6,14 +8,15 @@ public class ActionWorker_Add(string defName, int efficiency) : ActionWorker(eff
 
     private readonly int efficiency = efficiency;
 
-    public static ActionWorker Create(XmlNode action, XenotypeWorker xenotypeWorker)
+    public static bool TryCreate(XmlNode action, XenotypeWorker xenotypeWorker, out ActionWorker worker)
     {
         XmlElement add = action["add"];
 
         if (add == null)
         {
             // nothing to add, always succeeds
-            return Empty;
+            worker = Empty;
+            return true;
         }
 
         string defName = add.InnerText;
@@ -24,10 +27,11 @@ public class ActionWorker_Add(string defName, int efficiency) : ActionWorker(eff
 
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"Addition of {defName} would not succeed - already in the genes list");
+                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"    Addition of {defName.Colorize(ColoredText.ImpactColor)} would not succeed - already in the genes list".Colorize(Color.gray));
             }
 
-            return null;
+            worker = null;
+            return false;
         }
 
         if (!GeneDefResolver.TryGet(add, defName, out int efficiency))
@@ -36,20 +40,33 @@ public class ActionWorker_Add(string defName, int efficiency) : ActionWorker(eff
 
             if (Settings.devmode)
             {
-                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"Addition of {defName} would not succeed - GeneDef does not exist");
+                XenotypePatchUtils.Message(xenotypeWorker.DefName, $"    Addition of {defName.Colorize(ColoredText.ImpactColor)} would not succeed - GeneDef does not exist".Colorize(Color.gray));
             }
 
-            return null;
+            worker = null;
+            return false;
         }
 
-        return new ActionWorker_Add(defName, efficiency);
+        worker = new ActionWorker_Add(defName, efficiency);
+        return true;
     }
 
     public override void Apply(XenotypeWorker xenotypeWorker)
     {
         if (Settings.devmode)
         {
-            XenotypePatchUtils.Message(xenotypeWorker.DefName, $"Adding {defName} ({efficiencyChange.ToStringWithSign()})");
+            StringBuilder message = new StringBuilder("    Adding ".Colorize(Color.gray))
+                .Append(defName.Colorize(ColoredText.ImpactColor));
+
+            if (efficiencyChange != 0)
+            {
+                message
+                    .Append(" (")
+                    .Append(XenotypePatchUtils.EfficiencyToColoredString(efficiencyChange))
+                    .Append(')');
+            }
+
+            XenotypePatchUtils.Message(xenotypeWorker.DefName, message.ToString());
         }
 
         xenotypeWorker.geneList.Add(defName, efficiency);

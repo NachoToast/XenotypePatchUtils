@@ -2,17 +2,18 @@
 
 public static class ActionWorker_AddFirst
 {
-    public static ActionWorker Create(XmlNode action, XenotypeWorker xenotypeWorker)
+    public static bool TryCreate(XmlNode action, XenotypeWorker xenotypeWorker, out ActionWorker worker)
     {
         List<XmlNode> addFirst = Parsers.ParseList(action["addFirst"]);
 
         if (addFirst.Count == 0)
         {
             // empty or null list
-            return ActionWorker.Empty;
+            worker = ActionWorker.Empty;
+            return true;
         }
 
-        ActionWorker bestCandidateSoFar = null;
+        worker = null;
 
         // we have to iterate through every child, even if one is able to be added, since a
         // subsequent one might already be in the gene list (in which case we should not add any)
@@ -28,10 +29,11 @@ public static class ActionWorker_AddFirst
 
                 if (Settings.devmode)
                 {
-                    XenotypePatchUtils.Message(xenotypeWorker.DefName, $"<addFirst>[{i + 1}/{addFirst.Count}] {defName} already in the genes list, skipping all operations");
+                    XenotypePatchUtils.Message(xenotypeWorker.DefName, $"    <addFirst> {i + 1} / {addFirst.Count} - {defName.Colorize(ColoredText.ImpactColor)} already in the genes list, skipping all operations".Colorize(Color.gray));
                 }
 
-                return null;
+                worker = null;
+                return false;
             }
 
             if (!GeneDefResolver.TryGet(add, defName, out int efficiency))
@@ -40,17 +42,17 @@ public static class ActionWorker_AddFirst
 
                 if (Settings.devmode)
                 {
-                    XenotypePatchUtils.Message(xenotypeWorker.DefName, $"<addFirst>[{i + 1}/{addFirst.Count}] Addition of {defName} would not succeed - GeneDef does not exist, going to next node");
+                    XenotypePatchUtils.Message(xenotypeWorker.DefName, $"    <addFirst> {i + 1} / {addFirst.Count} - Addition of {defName.Colorize(ColoredText.ImpactColor)} would not succeed - GeneDef does not exist".Colorize(Color.gray));
                 }
 
                 continue;
             }
 
-            bestCandidateSoFar ??= new ActionWorker_Add(defName, efficiency);
+            worker ??= new ActionWorker_Add(defName, efficiency);
         }
 
         // might be null here, i.e. no mods were active, in which case operation should be seen as a
         // fail since there definitely were elements defined
-        return bestCandidateSoFar;
+        return worker != null;
     }
 }
