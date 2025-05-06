@@ -106,33 +106,35 @@ public static class GeneDefResolver
         return false;
     }
 
-    private static bool TryResolveInternal(string xpath, out int efficiency)
+    private static bool TryResolveInternal(string type, string key, string value, out int efficiency)
     {
-        XmlNode geneDef = Xml.SelectSingleNode(xpath);
+        XmlNode def = Xml.SelectSingleNode($"Defs/{type}[{key}=\"{value}\"]");
 
-        if (geneDef == null)
+        if (def == null)
         {
             efficiency = 0;
             return false;
         }
 
-        string rawEfficiency = geneDef["biostatMet"]?.InnerText;
+        string rawEfficiency = def["biostatMet"]?.InnerText;
 
         if (!string.IsNullOrEmpty(rawEfficiency))
         {
             efficiency = int.Parse(rawEfficiency);
+            return true;
         }
-        else
+        else if (def is XmlElement el && !el.GetAttribute("ParentName").NullOrEmpty())
         {
-            efficiency = 0;
+            return TryResolveInternal(type, "@Name", el.GetAttribute("ParentName"), out efficiency);
         }
 
+        efficiency = 0;
         return true;
     }
 
     private static bool TryResolveGeneDef(string defName, out int efficiency)
     {
-        if (TryResolveInternal($"Defs/GeneDef[defName=\"{defName}\"]", out efficiency))
+        if (TryResolveInternal("GeneDef", "defName", defName, out efficiency))
         {
             return true;
         }
@@ -146,6 +148,6 @@ public static class GeneDefResolver
 
         string actualDefName = defName.Substring(0, underscoreIndex);
 
-        return TryResolveInternal($"Defs/GeneTemplateDef[defName=\"{actualDefName}\"]", out efficiency);
+        return TryResolveInternal("GeneTemplateDef", "defName", actualDefName, out efficiency);
     }
 }
