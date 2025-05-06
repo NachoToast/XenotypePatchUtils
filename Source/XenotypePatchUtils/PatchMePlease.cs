@@ -15,6 +15,8 @@ public class PatchMePlease : DefModExtension
         protected readonly GeneDef add;
 
         protected readonly List<GeneDef> addFirst;
+
+        protected readonly List<GeneDef> addAll;
     }
 
     protected class ToFixMetabolismRule : AlwaysRule

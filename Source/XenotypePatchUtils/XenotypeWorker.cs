@@ -46,7 +46,8 @@ public partial class XenotypeWorker
 
                 if (!ActionWorker_Remove.TryCreate(action, this, out ActionWorker removeAction) ||
                     !ActionWorker_Add.TryCreate(action, this, out ActionWorker addAction) ||
-                    !ActionWorker_AddFirst.TryCreate(action, this, out ActionWorker addFirstAction))
+                    !ActionWorker_AddFirst.TryCreate(action, this, out ActionWorker addFirstAction) ||
+                    !ActionWorker_AddAll.TryCreate(action, this, out ActionWorker addAllAction))
                 {
                     continue;
                 }
@@ -54,6 +55,7 @@ public partial class XenotypeWorker
                 removeAction.Apply(this);
                 addAction.Apply(this);
                 addFirstAction.Apply(this);
+                addAllAction.Apply(this);
             }
             catch (Exception ex)
             {
@@ -95,6 +97,7 @@ public partial class XenotypeWorker
                 if (!ActionWorker_Remove.TryCreate(action, this, out ActionWorker removeAction) ||
                     !ActionWorker_Add.TryCreate(action, this, out ActionWorker addAction) ||
                     !ActionWorker_AddFirst.TryCreate(action, this, out ActionWorker addFirstAction) ||
+                    !ActionWorker_AddAll.TryCreate(action, this, out ActionWorker addAllAction) ||
                     !ActionWorker_AddBest.TryCreate(action, this, out ActionWorker addBestAction))
                 {
                     continue;
@@ -103,6 +106,7 @@ public partial class XenotypeWorker
                 int metabolismImpact = removeAction.efficiencyChange +
                     addAction.efficiencyChange +
                     addFirstAction.efficiencyChange +
+                    addAllAction.efficiencyChange +
                     addBestAction.efficiencyChange;
 
                 if (metabolismImpact == 0)
@@ -138,6 +142,7 @@ public partial class XenotypeWorker
                 removeAction.Apply(this);
                 addAction.Apply(this);
                 addFirstAction.Apply(this);
+                addAllAction.Apply(this);
                 addBestAction.Apply(this);
 
                 if (IsInRange(out maxIncrease, out maxDecrease))
