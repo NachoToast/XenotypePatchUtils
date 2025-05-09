@@ -19,6 +19,11 @@ public static class GeneDefResolver
 
     public static void Clear(out int cachedGeneCount, out int missingGeneCount)
     {
+#if DEBUG
+        Log.Message($"CACHED GENES:\n" + string.Join("\n", cachedGenes.Select(x => $"{x.Key}({x.Value})")));
+        Log.Message($"MISSING GENES:\n" + string.Join("\n", missingGenes));
+#endif
+
         cachedGeneCount = cachedGenes.Count;
         missingGeneCount = missingGenes.Count;
 
@@ -53,7 +58,7 @@ public static class GeneDefResolver
             return false;
         }
 
-        if (TryResolveGeneDef(defName, out efficiency))
+        if (TryResolveInternal(defName, out efficiency))
         {
             // found :)
             cachedGenes.SetOrAdd(defName, efficiency);
@@ -106,9 +111,9 @@ public static class GeneDefResolver
         return false;
     }
 
-    private static bool TryResolveInternal(string type, string key, string value, out int efficiency)
+    private static bool TryResolveGeneDef(string key, string value, out int efficiency)
     {
-        XmlNode def = Xml.SelectSingleNode($"Defs/{type}[{key}=\"{value}\"]");
+        XmlNode def = Xml.SelectSingleNode($"Defs/GeneDef[{key}=\"{value}\"]");
 
         if (def == null)
         {
@@ -123,18 +128,68 @@ public static class GeneDefResolver
             efficiency = int.Parse(rawEfficiency);
             return true;
         }
-        else if (def is XmlElement el && !el.GetAttribute("ParentName").NullOrEmpty())
+
+        if (def is XmlElement el && !el.GetAttribute("ParentName").NullOrEmpty())
         {
-            return TryResolveInternal(type, "@Name", el.GetAttribute("ParentName"), out efficiency);
+            return TryResolveGeneDef("@Name", el.GetAttribute("ParentName"), out efficiency);
         }
 
         efficiency = 0;
         return true;
     }
 
-    private static bool TryResolveGeneDef(string defName, out int efficiency)
+    private static bool TryResolveGeneTemplateDef(string key, string value, string subKey, out int efficiency)
     {
-        if (TryResolveInternal("GeneDef", "defName", defName, out efficiency))
+        XmlNode def = Xml.SelectSingleNode($"Defs/GeneTemplateDef[{key}=\"{value}\"]");
+
+        if (def == null)
+        {
+            efficiency = 0;
+            return false;
+        }
+
+        List<XmlNode> overrides = Parsers.ParseList(def["chemicalBiostatOverrides"]);
+
+        foreach (XmlNode overrideNode in overrides)
+        {
+            string chemical = overrideNode["chemical"]?.InnerText;
+
+            if (chemical != subKey)
+            {
+                continue;
+            }
+
+            string biostatMet = overrideNode["biostatMet"]?.InnerText;
+
+            if (string.IsNullOrEmpty(biostatMet))
+            {
+                continue;
+            }
+
+            efficiency = int.Parse(biostatMet);
+            return true;
+        }
+
+        string rawEfficiency = def["biostatMet"]?.InnerText;
+
+        if (!string.IsNullOrEmpty(rawEfficiency))
+        {
+            efficiency = int.Parse(rawEfficiency);
+            return true;
+        }
+
+        if (def is XmlElement el && !el.GetAttribute("ParentName").NullOrEmpty())
+        {
+            return TryResolveGeneTemplateDef("@Name", el.GetAttribute("ParentName"), subKey, out efficiency);
+        }
+
+        efficiency = 0;
+        return true;
+    }
+
+    private static bool TryResolveInternal(string defName, out int efficiency)
+    {
+        if (TryResolveGeneDef("defName", defName, out efficiency))
         {
             return true;
         }
@@ -147,7 +202,8 @@ public static class GeneDefResolver
         }
 
         string actualDefName = defName.Substring(0, underscoreIndex);
+        string subKey = defName.Substring(underscoreIndex + 1);
 
-        return TryResolveInternal("GeneTemplateDef", "defName", actualDefName, out efficiency);
+        return TryResolveGeneTemplateDef("defName", actualDefName, subKey, out efficiency);
     }
 }
