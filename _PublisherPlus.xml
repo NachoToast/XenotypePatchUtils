@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <Excluded>
-    <exclude>.editorconfig</exclude>
     <exclude>.git</exclude>
     <exclude>.vscode</exclude>
     <exclude>1.5\Assemblies\XenotypePatchUtils.pdb</exclude>
-    <exclude>README.md</exclude>
+    <exclude>1.6\Assemblies\XenotypePatchUtils.pdb</exclude>
     <exclude>Source</exclude>
+    <exclude>.editorconfig</exclude>
+    <exclude>.gitignore</exclude>
+    <exclude>README.md</exclude>
   </Excluded>
 </Configuration>

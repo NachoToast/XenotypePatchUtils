@@ -13,7 +13,7 @@
     <LangVersion>preview</LangVersion>
     <NoWarn>1701;1702;CS1591;CA2211</NoWarn>
     <Optimize>true</Optimize>
-    <OutDir>..\..\1.5\Assemblies</OutDir>
+    <OutDir>..\..\..\1.6\Assemblies</OutDir>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <TargetFramework>net48</TargetFramework>
     <WarningLevel>4</WarningLevel>
@@ -22,10 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*" />
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*-*" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\..\..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 </Project>

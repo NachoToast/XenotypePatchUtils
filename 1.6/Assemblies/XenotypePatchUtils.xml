@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>XenotypePatchUtils</name>
+    </assembly>
+    <members>
+        <member name="F:XenotypePatchUtils.ActionWorker.Empty">
+            <summary>
+            An action worker that does nothing.
+            </summary>
+        </member>
+        <member name="F:XenotypePatchUtils.ActionWorker.efficiencyChange">
+            <summary>
+            Total metabolic efficiency change should this action be applied.
+            </summary>
+        </member>
+        <member name="T:XenotypePatchUtils.GeneDefResolver">
+            <summary>
+            Helper class for seeing if a <see cref="T:Verse.GeneDef"/> exists.
+            </summary>
+        </member>
+        <member name="F:XenotypePatchUtils.GeneDefResolver.cachedGenes">
+            <summary>
+            Previously-searched GeneDefs mapped to their metabolic efficiency.
+            </summary>
+        </member>
+        <member name="F:XenotypePatchUtils.GeneDefResolver.missingGenes">
+            <summary>
+            Previously-searched GeneDefs that were not found.
+            </summary>
+        </member>
+        <member name="M:XenotypePatchUtils.GeneDefResolver.TryGet(System.Xml.XmlNode,System.String,System.Int32@)">
+            <summary>
+            Attempts to find a GeneDef and it's metabolic efficiency via defName.
+            </summary>
+            <remarks>
+            Throws an <see cref="T:System.Exception"/> if the GeneDef cannot be found when it should have been
+            (e.g. not suppressed by a <see cref="T:RimWorld.MayRequireAttribute"/>).
+            </remarks>
+            <returns>
+            Returns <see langword="true"/> or <see langword="false"/> depending on whether the GeneDef
+            exists or not.
+            </returns>
+        </member>
+        <member name="M:XenotypePatchUtils.GeneDefResolver.MustResolve(System.Xml.XmlNode)">
+            <summary>
+            Whether an exception should be thrown for the given failed <see cref="T:Verse.GeneDef"/> reference node.
+            </summary>
+            <remarks>
+            This is based on the values of the <see cref="T:RimWorld.MayRequireAttribute"/> and <see cref="T:RimWorld.MayRequireAnyOfAttribute"/>.
+            </remarks>
+        </member>
+    </members>
+</doc>
