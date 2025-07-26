@@ -105,10 +105,10 @@ public static class GeneDefResolver
         // MayRequireAnyOf = ANY must be active, so attribute will suppress errors when none are active.
         if (!string.IsNullOrEmpty(mayRequireAnyOf) && mayRequireAnyOf.Split(',').All(x => !ModsConfig.IsActive(x)))
         {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     private static bool TryResolveGeneDef(string key, string value, out int efficiency)
